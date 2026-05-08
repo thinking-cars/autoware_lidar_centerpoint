@@ -29,7 +29,7 @@ jobs:
         with:
           platform: amd64
           target: dev
-          base-image: rwthika/ros2-cuda:jazzy
+          base-image: rwthika/ros2-tensorrt:jazzy
           rmw-implementation: rmw_zenoh_cpp
           command: ros2 launch autoware_lidar_centerpoint lidar_centerpoint.launch.xml
           enable-industrial-ci: false
