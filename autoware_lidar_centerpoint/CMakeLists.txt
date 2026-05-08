@@ -134,6 +134,7 @@ if(TRT_AVAIL AND CUDA_AVAIL)
     INSTALL_TO_SHARE
       launch
       config
+      models
   )
 
   install(
