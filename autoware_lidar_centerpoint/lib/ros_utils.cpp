@@ -17,6 +17,7 @@
 #include <autoware/object_recognition_utils/object_recognition_utils.hpp>
 #include <autoware_utils/geometry/geometry.hpp>
 #include <autoware_utils/math/constants.hpp>
+#include <perception_msgs_utils/object_access.hpp>
 
 #include <string>
 #include <vector>
@@ -25,6 +26,51 @@ namespace autoware::lidar_centerpoint
 {
 
 using Label = autoware_perception_msgs::msg::ObjectClassification;
+
+namespace
+{
+
+uint8_t toPerceptionClassificationType(const uint8_t label)
+{
+  using PerceptionLabel = perception_msgs::msg::ObjectClassification;
+
+  switch (label) {
+    case Label::CAR:
+      return PerceptionLabel::CAR;
+    case Label::TRUCK:
+      return PerceptionLabel::TRUCK;
+    case Label::BUS:
+      return PerceptionLabel::BUS;
+    case Label::TRAILER:
+      return PerceptionLabel::TRAILER;
+    case Label::MOTORCYCLE:
+      return PerceptionLabel::MOTORCYCLE;
+    case Label::BICYCLE:
+      return PerceptionLabel::BICYCLE;
+    case Label::PEDESTRIAN:
+      return PerceptionLabel::PEDESTRIAN;
+    case Label::ANIMAL:
+      return PerceptionLabel::ANIMAL;
+    case Label::HAZARD:
+    case Label::OVER_DRIVABLE:
+    case Label::UNDER_DRIVABLE:
+      return PerceptionLabel::ROAD_OBSTACLE;
+    case Label::UNKNOWN:
+    default:
+      return PerceptionLabel::UNKNOWN;
+  }
+}
+
+perception_msgs::msg::ObjectClassification toPerceptionClassification(
+  const autoware_perception_msgs::msg::ObjectClassification & classification)
+{
+  perception_msgs::msg::ObjectClassification output_classification;
+  output_classification.type = toPerceptionClassificationType(classification.label);
+  output_classification.probability = classification.probability;
+  return output_classification;
+}
+
+}  // namespace
 
 void box3DToDetectedObject(
   const Box3D & box3d, const std::vector<std::string> & class_names, const bool has_twist,
@@ -84,6 +130,80 @@ void box3DToDetectedObject(
       obj.kinematics.twist_with_covariance.covariance = convertTwistCovarianceMatrix(box3d, yaw);
     }
   }
+}
+
+perception_msgs::msg::ObjectList detectedObjectsToObjectList(
+  const autoware_perception_msgs::msg::DetectedObjects & objects_msg)
+{
+  perception_msgs::msg::ObjectList output_msg;
+  output_msg.header = objects_msg.header;
+  output_msg.objects.reserve(objects_msg.objects.size());
+
+  for (std::size_t index = 0; index < objects_msg.objects.size(); ++index) {
+    const auto & input_object = objects_msg.objects.at(index);
+
+    perception_msgs::msg::Object output_object;
+    output_object.id = static_cast<uint64_t>(index + 1);
+    output_object.existence_probability = input_object.existence_probability;
+
+    perception_msgs::object_access::initializeState(
+      output_object, perception_msgs::msg::ISCACTR::MODEL_ID);
+    output_object.state.header = objects_msg.header;
+    output_object.state.reference_point.value =
+      perception_msgs::msg::ObjectReferencePoint::GEOMETRIC_CENTER;
+
+    if (input_object.classification.empty()) {
+      perception_msgs::msg::ObjectClassification classification;
+      classification.type = perception_msgs::msg::ObjectClassification::UNKNOWN;
+      classification.probability = 0.0;
+      output_object.state.classifications.push_back(classification);
+    } else {
+      output_object.state.classifications.reserve(input_object.classification.size());
+      for (const auto & classification : input_object.classification) {
+        output_object.state.classifications.push_back(toPerceptionClassification(classification));
+      }
+    }
+
+    if (input_object.kinematics.has_position_covariance) {
+      perception_msgs::object_access::setPoseWithCovariance(
+        output_object, input_object.kinematics.pose_with_covariance);
+    } else {
+      perception_msgs::object_access::setPose(
+        output_object, input_object.kinematics.pose_with_covariance.pose);
+    }
+
+    perception_msgs::object_access::setLength(output_object, input_object.shape.dimensions.x);
+    perception_msgs::object_access::setWidth(output_object, input_object.shape.dimensions.y);
+    perception_msgs::object_access::setHeight(output_object, input_object.shape.dimensions.z);
+
+    if (input_object.kinematics.has_twist) {
+      geometry_msgs::msg::Vector3 velocity;
+      velocity.x = input_object.kinematics.twist_with_covariance.twist.linear.x;
+      velocity.y = input_object.kinematics.twist_with_covariance.twist.linear.y;
+      velocity.z = input_object.kinematics.twist_with_covariance.twist.linear.z;
+      perception_msgs::object_access::setVelocity(output_object, velocity, false);
+
+      if (input_object.kinematics.has_twist_covariance) {
+        constexpr auto model_size = perception_msgs::msg::ISCACTR::CONTINUOUS_STATE_SIZE;
+        constexpr auto vel_lon = perception_msgs::msg::ISCACTR::VEL_LON;
+        constexpr auto vel_lat = perception_msgs::msg::ISCACTR::VEL_LAT;
+        const auto & covariance = input_object.kinematics.twist_with_covariance.covariance;
+
+        output_object.state.continuous_state_covariance[model_size * vel_lon + vel_lon] =
+          covariance.at(0);
+        output_object.state.continuous_state_covariance[model_size * vel_lon + vel_lat] =
+          covariance.at(1);
+        output_object.state.continuous_state_covariance[model_size * vel_lat + vel_lon] =
+          covariance.at(6);
+        output_object.state.continuous_state_covariance[model_size * vel_lat + vel_lat] =
+          covariance.at(7);
+      }
+    }
+
+    output_msg.objects.push_back(std::move(output_object));
+  }
+
+  return output_msg;
 }
 
 uint8_t getSemanticType(const std::string & class_name)

@@ -20,6 +20,7 @@
 #include "autoware/lidar_centerpoint/utils.hpp"
 
 #include "autoware_perception_msgs/msg/detected_objects.hpp"
+#include "perception_msgs/msg/object_list.hpp"
 
 #include <string>
 #include <vector>
@@ -30,6 +31,9 @@ namespace autoware::lidar_centerpoint
 void box3DToDetectedObject(
   const Box3D & box3d, const std::vector<std::string> & class_names, const bool has_twist,
   const bool has_variance, autoware_perception_msgs::msg::DetectedObject & obj);
+
+perception_msgs::msg::ObjectList detectedObjectsToObjectList(
+  const autoware_perception_msgs::msg::DetectedObjects & objects_msg);
 
 uint8_t getSemanticType(const std::string & class_name);
 

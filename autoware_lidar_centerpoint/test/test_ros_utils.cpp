@@ -16,6 +16,9 @@
 
 #include <gtest/gtest.h>
 
+#include <perception_msgs_utils/object_access.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+
 #include <string>
 #include <vector>
 
@@ -137,6 +140,99 @@ TEST(TestSuite, convertTwistCovarianceMatrix)
 
   EXPECT_FLOAT_EQ(twist_covariance[0], 0.5);
   EXPECT_FLOAT_EQ(twist_covariance[7], 0.2);
+}
+
+TEST(TestSuite, detectedObjectsToObjectList)
+{
+  autoware_perception_msgs::msg::DetectedObjects detected_objects_msg;
+  detected_objects_msg.header.frame_id = "base_link";
+  detected_objects_msg.header.stamp.sec = 123;
+  detected_objects_msg.header.stamp.nanosec = 456;
+
+  autoware_perception_msgs::msg::DetectedObject detected_object;
+  detected_object.existence_probability = 0.8;
+
+  autoware_perception_msgs::msg::ObjectClassification classification;
+  classification.label = autoware_perception_msgs::msg::ObjectClassification::CAR;
+  classification.probability = 0.9F;
+  detected_object.classification.push_back(classification);
+
+  detected_object.kinematics.pose_with_covariance.pose.position.x = 1.0;
+  detected_object.kinematics.pose_with_covariance.pose.position.y = 2.0;
+  detected_object.kinematics.pose_with_covariance.pose.position.z = 3.0;
+  tf2::Quaternion orientation;
+  orientation.setRPY(0.0, 0.0, 0.25);
+  detected_object.kinematics.pose_with_covariance.pose.orientation = tf2::toMsg(orientation);
+  detected_object.kinematics.has_position_covariance = true;
+  detected_object.kinematics.pose_with_covariance.covariance[0] = 0.1;
+  detected_object.kinematics.pose_with_covariance.covariance[7] = 0.2;
+  detected_object.kinematics.pose_with_covariance.covariance[14] = 0.3;
+  detected_object.kinematics.pose_with_covariance.covariance[35] = 0.4;
+
+  detected_object.shape.dimensions.x = 4.0;
+  detected_object.shape.dimensions.y = 2.0;
+  detected_object.shape.dimensions.z = 1.5;
+
+  detected_object.kinematics.has_twist = true;
+  detected_object.kinematics.has_twist_covariance = true;
+  detected_object.kinematics.twist_with_covariance.twist.linear.x = 3.0;
+  detected_object.kinematics.twist_with_covariance.twist.linear.y = 1.0;
+  detected_object.kinematics.twist_with_covariance.covariance[0] = 0.5;
+  detected_object.kinematics.twist_with_covariance.covariance[1] = 0.1;
+  detected_object.kinematics.twist_with_covariance.covariance[6] = 0.1;
+  detected_object.kinematics.twist_with_covariance.covariance[7] = 0.2;
+
+  detected_objects_msg.objects.push_back(detected_object);
+
+  const auto object_list =
+    autoware::lidar_centerpoint::detectedObjectsToObjectList(detected_objects_msg);
+
+  ASSERT_EQ(object_list.objects.size(), 1U);
+  EXPECT_EQ(object_list.header.frame_id, detected_objects_msg.header.frame_id);
+  EXPECT_EQ(object_list.header.stamp, detected_objects_msg.header.stamp);
+
+  const auto & output_object = object_list.objects.front();
+  EXPECT_EQ(output_object.id, 1U);
+  EXPECT_DOUBLE_EQ(output_object.existence_probability, detected_object.existence_probability);
+  EXPECT_EQ(output_object.state.header.frame_id, detected_objects_msg.header.frame_id);
+  EXPECT_EQ(output_object.state.header.stamp, detected_objects_msg.header.stamp);
+  ASSERT_EQ(output_object.state.classifications.size(), 1U);
+  EXPECT_EQ(
+    output_object.state.classifications.front().type,
+    perception_msgs::msg::ObjectClassification::CAR);
+  EXPECT_DOUBLE_EQ(
+    output_object.state.classifications.front().probability,
+    static_cast<double>(classification.probability));
+
+  const auto pose_with_covariance = perception_msgs::object_access::getPoseWithCovariance(output_object);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.pose.position.x, 1.0);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.pose.position.y, 2.0);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.pose.position.z, 3.0);
+  EXPECT_NEAR(perception_msgs::object_access::getYaw(output_object), 0.25, 1e-6);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.covariance[0], 0.1);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.covariance[7], 0.2);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.covariance[14], 0.3);
+  EXPECT_DOUBLE_EQ(pose_with_covariance.covariance[35], 0.4);
+
+  EXPECT_DOUBLE_EQ(perception_msgs::object_access::getLength(output_object), 4.0);
+  EXPECT_DOUBLE_EQ(perception_msgs::object_access::getWidth(output_object), 2.0);
+  EXPECT_DOUBLE_EQ(perception_msgs::object_access::getHeight(output_object), 1.5);
+
+  const auto velocity = perception_msgs::object_access::getVelocity(output_object);
+  EXPECT_DOUBLE_EQ(velocity.x, 3.0);
+  EXPECT_DOUBLE_EQ(velocity.y, 1.0);
+
+  constexpr auto state_size = perception_msgs::msg::ISCACTR::CONTINUOUS_STATE_SIZE;
+  constexpr auto vel_lon = perception_msgs::msg::ISCACTR::VEL_LON;
+  constexpr auto vel_lat = perception_msgs::msg::ISCACTR::VEL_LAT;
+  EXPECT_DOUBLE_EQ(
+    output_object.state.continuous_state_covariance[state_size * vel_lon + vel_lon], 0.5);
+  EXPECT_DOUBLE_EQ(
+    output_object.state.continuous_state_covariance[state_size * vel_lon + vel_lat], 0.1);
+  EXPECT_DOUBLE_EQ(
+    output_object.state.continuous_state_covariance[state_size * vel_lat + vel_lon], 0.1);
+  EXPECT_DOUBLE_EQ(
+    output_object.state.continuous_state_covariance[state_size * vel_lat + vel_lat], 0.2);
 }
 
 int main(int argc, char ** argv)

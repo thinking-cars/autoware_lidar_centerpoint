@@ -169,7 +169,7 @@ LidarCenterPointNode::LidarCenterPointNode(const rclcpp::NodeOptions & node_opti
     std::make_unique<cuda_blackboard::CudaBlackboardSubscriber<cuda_blackboard::CudaPointCloud2>>(
       *this, "~/input/pointcloud",
       std::bind(&LidarCenterPointNode::pointCloudCallback, this, std::placeholders::_1));
-  objects_pub_ = this->create_publisher<autoware_perception_msgs::msg::DetectedObjects>(
+  objects_pub_ = this->create_publisher<perception_msgs::msg::ObjectList>(
     "~/output/objects", rclcpp::QoS{1});
 
   // initialize debug tool
@@ -240,11 +240,14 @@ void LidarCenterPointNode::pointCloudCallback(
     raw_objects.emplace_back(obj);
   }
 
-  autoware_perception_msgs::msg::DetectedObjects output_msg;
-  output_msg.header = input_pointcloud_msg->header;
-  output_msg.objects = iou_bev_nms_.apply(raw_objects);
+  autoware_perception_msgs::msg::DetectedObjects detected_objects_msg;
+  detected_objects_msg.header = input_pointcloud_msg->header;
+  detected_objects_msg.objects = iou_bev_nms_.apply(raw_objects);
 
-  detection_class_remapper_.mapClasses(output_msg);
+  detection_class_remapper_.mapClasses(detected_objects_msg);
+
+  const perception_msgs::msg::ObjectList output_msg =
+    detectedObjectsToObjectList(detected_objects_msg);
 
   if (objects_sub_count > 0) {
     objects_pub_->publish(output_msg);

@@ -61,7 +61,7 @@ private:
 
   std::unique_ptr<cuda_blackboard::CudaBlackboardSubscriber<cuda_blackboard::CudaPointCloud2>>
     pointcloud_sub_;
-  rclcpp::Publisher<autoware_perception_msgs::msg::DetectedObjects>::SharedPtr objects_pub_;
+  rclcpp::Publisher<perception_msgs::msg::ObjectList>::SharedPtr objects_pub_;
 
   std::vector<std::string> class_names_;
   bool has_variance_{false};
