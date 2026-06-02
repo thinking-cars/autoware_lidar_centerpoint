@@ -1,21 +1,16 @@
-# openads_ros2_demo_repository
+# autoware_lidar_centerpoint
 
 <p align="center">
-  <a href="https://github.com/openads-project"><img src="https://img.shields.io/badge/OpenADS-f5ff01"/></a>
   <a href="https://www.ros.org"><img src="https://img.shields.io/badge/ROS 2-jazzy-22314e"/></a>
-  <a href="https://github.com/openads-project/openads_ros2_demo_repository/releases/latest"><img src="https://img.shields.io/github/v/release/openads-project/openads_ros2_demo_repository"/></a>
-  <a href="https://github.com/openads-project/openads_ros2_demo_repository/blob/main/LICENSE"><img src="https://img.shields.io/github/license/openads-project/openads_ros2_demo_repository"/></a>
+  <a href="https://github.com/thinking-cars/autoware_lidar_centerpoint/releases/latest"><img src="https://img.shields.io/github/v/release/thinking-cars/autoware_lidar_centerpoint"/></a>
+  <a href="https://github.com/thinking-cars/autoware_lidar_centerpoint/blob/main/LICENSE"><img src="https://img.shields.io/github/license/thinking-cars/autoware_lidar_centerpoint"/></a>
   <br>
-  <a href="https://github.com/openads-project/openads_ros2_demo_repository/actions/workflows/docker-ros.yml"><img src="https://github.com/openads-project/openads_ros2_demo_repository/actions/workflows/docker-ros.yml/badge.svg"/></a>
-  <a href="https://openads-project.github.io/openads_ros2_demo_repository"><img src="https://github.com/openads-project/openads_ros2_demo_repository/actions/workflows/docs.yml/badge.svg"/></a>
-  <a href="https://github.com/openads-project/openads_ros2_demo_repository/actions/workflows/consistency.yml"><img src="https://github.com/openads-project/openads_ros2_demo_repository/actions/workflows/consistency.yml/badge.svg"/></a>
+  <a href="https://github.com/thinking-cars/autoware_lidar_centerpoint/actions/workflows/docker-ros.yml"><img src="https://github.com/thinking-cars/autoware_lidar_centerpoint/actions/workflows/docker-ros.yml/badge.svg"/></a>
+  <a href="https://thinking-cars.github.io/autoware_lidar_centerpoint"><img src="https://github.com/thinking-cars/autoware_lidar_centerpoint/actions/workflows/docs.yml/badge.svg"/></a>
+  <a href="https://github.com/thinking-cars/autoware_lidar_centerpoint/actions/workflows/consistency.yml"><img src="https://github.com/thinking-cars/autoware_lidar_centerpoint/actions/workflows/consistency.yml/badge.svg"/></a>
 </p>
 
-**Demo repository for an OpenADS module**
-
-This repository serves as a demo for an OpenADS module, showcasing the structure and documentation style for OpenADS packages. It includes a simple ROS 2 node that subscribes to a topic, processes the data, and publishes the result. This is a short description of the repository and its purpose.
-
-<img src="https://raw.githubusercontent.com/ika-rwth-aachen/etsi_its_messages/refs/heads/main/assets/teaser.gif" width=800>
+This repository integrates the [`autoware_lidar_centerpoint`](https://github.com/autowarefoundation/autoware_universe/tree/f15e433ab4da38792d3b464a5ce4856678ef79f1/perception/autoware_lidar_centerpoint) package for 3D lidar object detection from [Autoware Universe](https://github.com/autowarefoundation/autoware_universe) into the [OpenADS](https://github.com/openads-project) ecosystem, which emphasizes a modular microservice architecture. Hence, this repository is self-contained and includes only the necessary dependencies.
 
 <p align="center">
   <strong>🚀 <a href="#-quick-start">Quick Start</a></strong> • <strong>💻 <a href="#-development">Development</a></strong> • <strong>📝 <a href="#-documentation">Documentation</a></strong>
@@ -26,11 +21,11 @@ This repository serves as a demo for an OpenADS module, showcasing the structure
 
 1. Start a container of the pre-built runtime image.
     ```bash
-    docker run --rm -it ghcr.io/openads-project/openads_ros2_demo_repository:latest bash
+    docker run --rm -it ghcr.io/thinking-cars/autoware_lidar_centerpoint:latest bash
     ```
 1. Inside the container, launch the pre-built nodes.
     ```bash
-    ros2 launch ros2_demo_package ros2_demo_node_launch.py
+    ros2 launch autoware_lidar_centerpoint lidar_centerpoint.launch.xml
     ```
 
 ## 💻 Development
@@ -39,11 +34,11 @@ This repository serves as a demo for an OpenADS module, showcasing the structure
 
 1. Clone the repository.
     ```bash
-    git clone https://github.com/openads-project/openads_ros2_demo_repository.git
+    git clone https://github.com/thinking-cars/autoware_lidar_centerpoint.git
     ```
 1. Initialize the [`.openads-dev-environment`](https://github.com/openads-project/openads-dev-environment) submodule containing development environment configuration.
     ```bash
-    cd openads_ros2_demo_repository
+    cd autoware_lidar_centerpoint
     git submodule update --init --recursive
     ```
 1. Open the repository in [Visual Studio Code](https://code.visualstudio.com).
@@ -76,12 +71,16 @@ colcon test-result --verbose
 
 ## 📝 Documentation
 
-Package and node interfaces are documented in the respective package READMEs listed below. Implementation details are found in the [Source Code Documentation](https://openads-project.github.io/openads_ros2_demo_repository).
+Package and node interfaces are documented in the respective package READMEs listed below. Implementation details are found in the [Source Code Documentation](https://thinking-cars.github.io/autoware_lidar_centerpoint).
 
 | Package | Description |
 | --- | --- |
-| [ros2_demo_package](ros2_demo_package/README.md) | ROS 2 demo package |
-| [ros2_demo_package_interfaces](ros2_demo_package_interfaces/README.md) | ROS interface definitions for ros2_demo_package |
+| [autoware_cuda_dependency_meta](autoware_cuda_dependency_meta/README.md) | Virtual package that provides an empty cuda stub package |
+| [autoware_cuda_utils](autoware_cuda_utils/README.md) | cuda utility library |
+| [autoware_interpolation](autoware_interpolation/README.md) | The spline interpolation package |
+| [autoware_lidar_centerpoint](autoware_lidar_centerpoint/README.md) | The autoware_lidar_centerpoint package |
+| [autoware_object_recognition_utils](autoware_object_recognition_utils/README.md) | The autoware_object_recognition_utils package |
+| [autoware_tensorrt_common](autoware_tensorrt_common/README.md) | tensorrt utility wrapper |
 
 ## ⚖️ Licensing
 
@@ -90,17 +89,4 @@ The source code in this repository is licensed under Apache-2.0, see [LICENSE](L
 ## 🙏 Acknowledgements
 
 > [!IMPORTANT]
-> This repository is part of [***OpenADS***](https://github.com/openads-project), the *Open Automated Driving Systems* project. *OpenADS* and its modules have been initiated and are currently being maintained by the [**Institute for Automotive Engineering (ika) at RWTH Aachen University**](https://www.ika.rwth-aachen.de/de/).
-
-Development and maintenance of this repository are supported by the following projects. We acknowledge the funding of the respective institutions.
-
-| Project | Funding Institution | Grant Number |
-| --- | --- | --- |
-| Demo Project | Demo Funding Institution | Demo Grant Number |
-
-<p>
-  <img src="https://www.drought.uni-freiburg.de/stressres/images/bmftr-logo/image" height=70>
-  <img src="https://ec.europa.eu/regional_policy/images/information-sources/logo-download-center/eu_funded_en.jpg" height=70>
-</p>
-
-<sub><sup>Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Climate, Infrastructure and Environment Executive Agency (CINEA). Neither the European Union nor CINEA can be held responsible for them.</sup></sub>
+> This project is maintained by [Thinking Cars](https://thinking-cars.de). We acknowledge the work of the Autoware contributors and are happy to discuss potential collaborations.
