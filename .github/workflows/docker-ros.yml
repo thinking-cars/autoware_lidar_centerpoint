@@ -16,15 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
+        uses: BRAINSia/free-disk-space@v2
         with:
           tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
       - uses: ika-rwth-aachen/docker-ros@main
         with:
           platform: amd64
