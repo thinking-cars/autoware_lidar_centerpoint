@@ -1,0 +1,9 @@
+repositories:
+  cuda_blackboard:
+    type: git
+    url: https://github.com/autowarefoundation/cuda_blackboard.git
+    version: 0.3.0
+  perception_interfaces:
+    type: git
+    url: https://github.com/RaphvK/perception_interfaces.git
+    version: camera2d
