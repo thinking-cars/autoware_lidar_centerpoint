@@ -22,6 +22,7 @@ jobs:
           base-image: nvcr.io/nvidia/tensorrt:25.03-py3
           ros-distro: jazzy
           rmw-implementation: rmw_zenoh_cpp
+          cmake-args: -DCMAKE_BUILD_TYPE=RelWithDebInfo
           command: ros2 launch autoware_lidar_centerpoint lidar_centerpoint.launch.xml
         env:
-          TARGET_CMAKE_ARGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo-DCMAKE_EXPORT_COMPILE_COMMANDS=1
+          TARGET_CMAKE_ARGS: -DCMAKE_EXPORT_COMPILE_COMMANDS=1
