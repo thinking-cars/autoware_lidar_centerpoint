@@ -19,6 +19,7 @@ jobs:
         with:
           platform: amd64
           target: dev,run
+          enable-slim: false
           base-image: nvcr.io/nvidia/tensorrt:25.03-py3
           ros-distro: jazzy
           rmw-implementation: rmw_zenoh_cpp
