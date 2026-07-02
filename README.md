@@ -13,6 +13,13 @@
 
 This repository integrates the [`autoware_lidar_centerpoint`](https://github.com/autowarefoundation/autoware_universe/tree/f15e433ab4da38792d3b464a5ce4856678ef79f1/perception/autoware_lidar_centerpoint) package for 3D lidar object detection from [Autoware Universe](https://github.com/autowarefoundation/autoware_universe) into the [OpenADS](https://github.com/openads-project) ecosystem, which emphasizes a modular microservice architecture. Hence, this repository is self-contained and includes only the necessary dependencies.
 
+> [!IMPORTANT]
+> This repository is a prototypical integration of `autoware_lidar_centerpoint` into [OpenADS](https://github.com/openads-project) for testing and benchmarking purposes. Thus, only necessary changes were made for integration without adopting the Autoware module to the OpenADS consistency guidelines. These adoptions will only be made in case of a full integration into OpenADS after testing and benchmarking. 
+
+The following teaser shows **detected objects (turquoise)** using the Waymo Open Dataset provided by [autonomy_datasets](https://github.com/thinking-cars/autonomy_datasets).
+
+![Teaser](./assets/teaser-waymo.gif)
+
 <p align="center">
   <strong>🚀 <a href="#-quick-start">Quick Start</a></strong> • <strong>💻 <a href="#-development">Development</a></strong> • <strong>📝 <a href="#-documentation">Documentation</a></strong>
 </p>
@@ -89,5 +96,4 @@ The source code in this repository is licensed under Apache-2.0, see [LICENSE](L
 
 ## 🙏 Acknowledgements
 
-> [!IMPORTANT]
-> This project is maintained by [Thinking Cars](https://thinking-cars.de). We acknowledge the work of the Autoware contributors and are happy to discuss potential collaborations.
+This project is maintained by [Thinking Cars](https://www.thinking-cars.de). We acknowledge the work of the [Autoware](https://autoware.org/) contributors and are happy to discuss potential collaborations.
