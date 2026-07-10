@@ -1,0 +1,37 @@
+services:
+
+  autonomy-datasets:
+    image: ghcr.io/thinking-cars/autonomy_datasets:latest
+    command: bash -ic "hf auth login --token $HF_TOKEN && ros2 launch autonomy_datasets autonomy_datasets.launch.py dataset:=nvidia_physicalai_av_dataset"
+    environment:
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+      DISPLAY: ${DISPLAY:-""}
+    volumes:
+      - $DATASET_DIR:/datasets
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./config/params_nvidia_physicalai_av_dataset.yml:/docker-ros/ws/install/autonomy_datasets/share/autonomy_datasets/config/params_nvidia_physicalai_av_dataset.yml
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  autoware-lidar-centerpoint:
+    extends:
+      file: docker/compose/docker-compose.yml
+      service: autoware-lidar-centerpoint
+    environment:
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+      USE_SIM_TIME: true
+      MODEL_NAME: centerpoint
+      INPUT_POINTCLOUD: /lidar_01/point_cloud
+      OUTPUT_OBJECTS: /detected_objects
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

@@ -1,0 +1,26 @@
+services:
+
+  autoware-lidar-centerpoint:
+    image: ghcr.io/thinking-cars/autoware_lidar_centerpoint:latest
+    environment:
+      # --- name ------
+      NAMESPACE: /
+      NAME: autoware_lidar_centerpoint
+      # --- inputs ----
+      INPUT_POINTCLOUD: ~/point_cloud
+      # --- outputs ---
+      OUTPUT_OBJECTS: ~/objects
+      # --- other -----
+      MODEL_NAME: ${MODEL_NAME:-centerpoint}
+      USE_SIM_TIME: ${USE_SIM_TIME:-false}
+    command:
+      - /bin/bash
+      - -ic
+      - |
+        ros2 launch autoware_lidar_centerpoint lidar_centerpoint.launch.xml \
+          namespace:=$${NAMESPACE} \
+          node_name:=$${NAME} \
+          use_sim_time:=$${USE_SIM_TIME} \
+          input/pointcloud:=$${INPUT_POINTCLOUD} \
+          output/objects:=$${OUTPUT_OBJECTS} \
+          model_name:=$${MODEL_NAME}

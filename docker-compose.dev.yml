@@ -1,0 +1,19 @@
+services:
+
+  autonomy-datasets:
+    extends:
+      file: docker-compose.yml
+      service: autonomy-datasets
+    # image: ghcr.io/thinking-cars/autonomy_datasets:latest-dev
+    # command: sleep infinity
+    # volumes:
+    #   - ../autonomy_datasets:/docker-ros/ws/src/target
+
+  autoware-lidar-centerpoint:
+    extends:
+      file: docker-compose.yml
+      service: autoware-lidar-centerpoint
+    image: ghcr.io/thinking-cars/autoware_lidar_centerpoint:latest-dev
+    command: sleep infinity
+    volumes:
+      - .:/docker-ros/ws/src/target

@@ -27,14 +27,12 @@ The following teaser shows **detected objects (turquoise)** using the Waymo Open
 
 ## 🚀 Quick Start
 
-1. Start a container of the pre-built runtime image.
-    ```bash
-    docker run --rm -it ghcr.io/thinking-cars/autoware_lidar_centerpoint:latest bash
-    ```
-1. Inside the container, launch the pre-built nodes.
-    ```bash
-    ros2 launch autoware_lidar_centerpoint lidar_centerpoint.launch.xml
-    ```
+Run the `autoware_lidar_centerpoint` model on lidar point clouds from the NVIDIA PhyiscalAI AV dataset published by [autonomy_datasets](https://github.com/thinking-cars/autonomy_datasets):
+
+```bash
+export HF_TOKEN=<your-huggingface-access-token>
+docker compose up
+```
 
 ## 💻 Development
 
@@ -49,14 +47,18 @@ The following teaser shows **detected objects (turquoise)** using the Waymo Open
     cd autoware_lidar_centerpoint
     git submodule update --init --recursive
     ```
-1. Open the repository in [Visual Studio Code](https://code.visualstudio.com).
+1. Run [autonomy_datasets](https://github.com/thinking-cars/autonomy_datasets) along with a development container for `autoware_lidar_centerpoint`:
     ```bash
-    code .
+    docker compose -f docker-compose.dev.yml up
     ```
-1. Install the recommended VS Code extensions.
-    > *Ctrl+Shift+P / Extensions: Show Recommended Extensions / Install Workspace Recommended Extensions (Cloud Download Icon)*
-1. Reopen the repository in a [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers).
-    > *Ctrl+Shift+P / Dev Containers: Rebuild and Reopen in Container*
+1. Open [Visual Studio Code](https://code.visualstudio.com) and attach to the running development container.
+    > *F1 / Dev Containers: Attach to Running Container... / autoware_lidar_centerpoint-autoware_lidar_centerpoint-1*
+1. Navigate to the workspace and compile the source code.
+    > *Ctrl+O / `/docker-ros/ws/src/target/` / Ctrl+Shift+B*
+1. Run the compiled ROS node.
+    ```bash
+    ros2 launch autoware_lidar_centerpoint lidar_centerpoint.launch.xml model_name:=centerpoint input/pointcloud:=/lidar_01/point_cloud output/objects:=/detected_objects use_sim_time:=true
+    ```
 
 ### Build
 

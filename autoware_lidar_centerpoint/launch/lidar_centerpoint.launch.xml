@@ -4,6 +4,7 @@
   <arg name="output/objects" default="objects"/>
   <arg name="data_path" default="$(env HOME)/autoware_data/ml_models" description="packages data and artifacts directory path"/>
   <arg name="node_name" default="lidar_centerpoint" description="node name for autoware_lidar_centerpoint_node"/>
+  <arg name="namespace" default="/" description="node namespace"/>
   <arg name="model_name" default="centerpoint_tiny" description="options: `centerpoint`, `centerpoint_tiny` or `centerpoint_short_range`"/>
   <arg name="model_path" default="$(find-pkg-share autoware_lidar_centerpoint)/models/$(var model_name)"/>
   <arg name="model_param_path" default="$(find-pkg-share autoware_lidar_centerpoint)/config/$(var model_name).param.yaml"/>
@@ -18,7 +19,7 @@
 
   <group if="$(var use_pointcloud_container)">
     <load_composable_node target="$(var pointcloud_container_name)">
-      <composable_node pkg="autoware_lidar_centerpoint" plugin="autoware::lidar_centerpoint::LidarCenterPointNode" name="$(var node_name)">
+      <composable_node pkg="autoware_lidar_centerpoint" plugin="autoware::lidar_centerpoint::LidarCenterPointNode" name="$(var node_name)" namespace="$(var namespace)">
         <remap from="~/input/pointcloud" to="$(var input/pointcloud)"/>
         <remap from="~/input/pointcloud/cuda" to="$(var input/pointcloud)/cuda"/>
         <remap from="~/output/objects" to="$(var output/objects)"/>
@@ -34,7 +35,7 @@
     </load_composable_node>
   </group>
   <group unless="$(var use_pointcloud_container)">
-    <node pkg="autoware_lidar_centerpoint" exec="autoware_lidar_centerpoint_node" name="$(var node_name)" output="screen">
+    <node pkg="autoware_lidar_centerpoint" exec="autoware_lidar_centerpoint_node" name="$(var node_name)" namespace="$(var namespace)" output="screen">
       <remap from="~/input/pointcloud" to="$(var input/pointcloud)"/>
       <remap from="~/input/pointcloud/cuda" to="$(var input/pointcloud)/cuda"/>
       <remap from="~/output/objects" to="$(var output/objects)"/>
