@@ -38,11 +38,11 @@ uint8_t toPerceptionClassificationType(const uint8_t label)
     case Label::CAR:
       return PerceptionLabel::CAR;
     case Label::TRUCK:
-      return PerceptionLabel::TRUCK;
+      return PerceptionLabel::UTILITY;
     case Label::BUS:
       return PerceptionLabel::BUS;
     case Label::TRAILER:
-      return PerceptionLabel::TRAILER;
+      return PerceptionLabel::UTILITY;
     case Label::MOTORCYCLE:
       return PerceptionLabel::MOTORCYCLE;
     case Label::BICYCLE:
@@ -54,7 +54,7 @@ uint8_t toPerceptionClassificationType(const uint8_t label)
     case Label::HAZARD:
     case Label::OVER_DRIVABLE:
     case Label::UNDER_DRIVABLE:
-      return PerceptionLabel::ROAD_OBSTACLE;
+      return PerceptionLabel::UNKNOWN;
     case Label::UNKNOWN:
     default:
       return PerceptionLabel::UNKNOWN;
